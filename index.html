@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Macy's & Bloomingdale's Syndication Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/theme/mermaid.min.css" integrity="sha384-GjkHn3qB+/DAdOkOOHPQGnkNxqCMkiNKJR1x6SKOm5EhRFIAhPQtpLlq/e8XeLD" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/gridjs.umd.js" integrity="sha384-/XXDzxe4FsGiAe50i/u9pY/Vy/uX654MHB1xoc1BJNnH1WXHhqHga9g3q5tF4gj7" crossorigin="anonymous"></script>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; color: #1a1a2e; padding: 20px; font-size: 14px; }
+
+h1 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+.subtitle { font-size: 12px; color: #888; margin-top: 3px; }
+
+.stats-row { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+.stat { background: white; border-radius: 8px; padding: 12px 16px; border: 1px solid #e5e7eb; min-width: 100px; }
+.stat-num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+.stat-label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+.stat.green .stat-num { color: #16a34a; }
+.stat.blue .stat-num { color: #2563eb; }
+.stat.purple .stat-num { color: #7c3aed; }
+.stat.orange .stat-num { color: #ea580c; }
+.stat.teal .stat-num { color: #0891b2; }
+
+.filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.filter-group { display: flex; gap: 4px; align-items: center; }
+.filter-label { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-right: 2px; }
+.pill { padding: 5px 12px; border: 1px solid #e5e7eb; border-radius: 20px; background: white; cursor: pointer; font-size: 12px; color: #6b7280; transition: all 0.15s; }
+.pill:hover { border-color: #6366f1; color: #6366f1; }
+.pill.active { background: #6366f1; color: white; border-color: #6366f1; font-weight: 500; }
+.pill.active.green { background: #16a34a; border-color: #16a34a; }
+.pill.active.orange { background: #ea580c; border-color: #ea580c; }
+.pill.active.blue { background: #2563eb; border-color: #2563eb; }
+.pill.active.teal { background: #0891b2; border-color: #0891b2; }
+.separator { width: 1px; height: 20px; background: #e5e7eb; margin: 0 4px; }
+
+.search-wrap { margin-bottom: 12px; }
+.search-wrap input { width: 280px; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; background: white; }
+.search-wrap input:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.1); }
+
+#table-wrap { background: white; border-radius: 10px; border: 1px solid #e5e7eb; overflow: hidden; }
+
+/* Grid.js overrides */
+.gridjs-wrapper { border: none !important; box-shadow: none !important; }
+.gridjs-table { width: 100% !important; }
+.gridjs-head th { background: #f9fafb !important; font-size: 11px !important; font-weight: 600 !important; color: #6b7280 !important; text-transform: uppercase !important; letter-spacing: 0.4px !important; border-bottom: 1px solid #e5e7eb !important; }
+.gridjs-tbody td { font-size: 13px !important; vertical-align: middle !important; }
+.gridjs-tr:hover td { background: #fafafa !important; }
+.gridjs-footer { border-top: 1px solid #e5e7eb !important; background: #f9fafb !important; }
+.gridjs-pagination { font-size: 12px !important; }
+
+.badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.b-customer { background: #dbeafe; color: #1d4ed8; }
+.b-lead { background: #fef9c3; color: #854d0e; }
+.b-prospect { background: #fef3c7; color: #92400e; }
+.b-agency { background: #f3e8ff; color: #6b21a8; }
+.b-ltcustomer { background: #e0f2fe; color: #0369a1; }
+.b-form { background: #dcfce7; color: #15803d; }
+.b-manual { background: #fff7ed; color: #c2410c; }
+.b-cio { background: #ede9fe; color: #6d28d9; }
+
+/* Opp stage badges */
+.stage-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.stage-potential   { background: #f3f4f6; color: #374151; }
+.stage-discovery   { background: #fef3c7; color: #92400e; }
+.stage-evaluation  { background: #dbeafe; color: #1d4ed8; }
+.stage-propose     { background: #e0e7ff; color: #3730a3; }
+.stage-contracting { background: #ede9fe; color: #5b21b6; }
+.stage-won         { background: #dcfce7; color: #15803d; }
+.stage-lost        { background: #fee2e2; color: #991b1b; }
+.stage-none        { color: #d1d5db; font-size: 12px; }
+
+.yes { color: #16a34a; font-weight: 600; }
+.no { color: #dc2626; font-weight: 500; }
+.dash { color: #d1d5db; }
+.loading-bar { text-align: center; padding: 30px; color: #9ca3af; font-size: 13px; }
+.last-updated { text-align: right; font-size: 11px; color: #9ca3af; margin-top: 8px; }
+.dup-note { font-size: 11px; color: #ea580c; margin-left: 4px; }
+.sf-loading { font-size: 11px; color: #6366f1; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<h1>🏬 Macy's & Bloomingdale's Syndication Tracker</h1>
+<div class="subtitle">Campaign started May 2026 · SF data pre-matched as of <span id="map-date"></span> · Sources: Manual Email · HubSpot Form · Customer.io (CSM Campaigns)</div>
+<div class="sf-loading" id="sf-status"></div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-num" id="s-total">—</div><div class="stat-label">Total Brands</div></div>
+  <div class="stat green"><div class="stat-num" id="s-interested">—</div><div class="stat-label">Interested (SF)</div></div>
+  <div class="stat teal"><div class="stat-num" id="s-replied">—</div><div class="stat-label">Replied</div></div>
+  <div class="stat blue"><div class="stat-num" id="s-hasopp">—</div><div class="stat-label">Has Opp</div></div>
+  <div class="stat green"><div class="stat-num" id="s-won">—</div><div class="stat-label">Won Opps</div></div>
+  <div class="stat green"><div class="stat-num" id="s-wonacv">—</div><div class="stat-label">Won ACV</div></div>
+  <div class="stat purple"><div class="stat-num" id="s-customers">—</div><div class="stat-label">Customers</div></div>
+  <div class="stat"><div class="stat-num" id="s-form">16</div><div class="stat-label">Form Submitters</div></div>
+  <div class="stat orange"><div class="stat-num" id="s-cio">167</div><div class="stat-label">CSM Campaign</div></div>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">Source:</span>
+    <button class="pill active" data-f="source" data-v="all">All</button>
+    <button class="pill green" data-f="source" data-v="Form">Form</button>
+    <button class="pill orange" data-f="source" data-v="Manual Email">Manual</button>
+    <button class="pill blue" data-f="source" data-v="Customer.io">Customer.io</button>
+  </div>
+  <div class="separator"></div>
+  <div class="filter-group">
+    <span class="filter-label">Interest:</span>
+    <button class="pill active" data-f="interest" data-v="all">All</button>
+    <button class="pill" data-f="interest" data-v="yes">✓ Interested</button>
+    <button class="pill" data-f="interest" data-v="no">✗ Not Interested</button>
+  </div>
+  <div class="separator"></div>
+  <div class="filter-group">
+    <span class="filter-label">Replied:</span>
+    <button class="pill active" data-f="replied" data-v="all">All</button>
+    <button class="pill teal" data-f="replied" data-v="yes">✓ Replied</button>
+    <button class="pill" data-f="replied" data-v="no">✗ No Reply</button>
+  </div>
+  <div class="separator"></div>
+  <div class="filter-group">
+    <span class="filter-label">Has Opp:</span>
+    <button class="pill active" data-f="hasopp" data-v="all">All</button>
+    <button class="pill" data-f="hasopp" data-v="yes">Yes</button>
+    <button class="pill" data-f="hasopp" data-v="no">No</button>
+  </div>
+  <div class="separator"></div>
+  <div class="filter-group">
+    <span class="filter-label">Type:</span>
+    <button class="pill active" data-f="type" data-v="all">All</button>
+    <button class="pill" data-f="type" data-v="customer">Customer</button>
+    <button class="pill" data-f="type" data-v="lead">Lead/Prospect</button>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="🔍  Search account name..." oninput="applyFilters()">
+</div>
+
+<div id="table-wrap"><div class="loading-bar">Loading Salesforce data…</div></div>
+<div class="last-updated" id="last-updated"></div>
+
+<script>
+// ── STATIC DATA ──────────────────────────────────────────────────────────────
+const FORM = [
+  { brand:"shortyLOVE LLC",            type:"Customer",   source:"Form",         hs:["shortylove llc"] },
+  { brand:"Frank and Adam Apparel",    type:"Customer",   source:"Form",         hs:["frank and adam apparel, llc","frank and adam apparel"] },
+  { brand:"Sapphire Group",            type:"Customer",   source:"Form",         hs:["sapphire group"] },
+  { brand:"Naturalprettyhair.com",     type:"Lead",       source:"Form",         hs:["naturalprettyhair.com"] },
+  { brand:"Daluchi.shop",              type:"Lead",       source:"Form",         hs:["www.daluchi.shop","daluchi.shop"] },
+  { brand:"Edikted LLC",               type:"Lead",       source:"Form",         hs:["tl dcz ltd (edikted llc)","edikted"] },
+  { brand:"DSPMOTOR INC",              type:"Customer",   source:"Form",         hs:["dspmotor inc"] },
+  { brand:"Fable England",             type:"Customer",   source:"Form",         hs:["fable england (supamax limited)","fable england"] },
+  { brand:"Alterreny.com",             type:"Lead",       source:"Form",         hs:["www.alterreny.com","alterreny.com"] },
+  { brand:"hearshearingandhearables",  type:"Lead",       source:"Form",         hs:["hearshearingandhearables.com"] },
+  { brand:"effortlessbedding",         type:"Lead",       source:"Form",         hs:["effortlessbedding"] },
+  { brand:"Adducate Inc",              type:"Lead",       source:"Form",         hs:["adducate inc"] },
+  { brand:"Supersmile",                type:"Customer",   source:"Form",         hs:["supersmile"] },
+  { brand:"prosperacorp",              type:"Customer",   source:"Form",         hs:["prosperacorp"] },
+  { brand:"Viscata",                   type:"Customer",   source:"Form",         hs:["viscata"] },
+  { brand:"Sanuk Usa",                 type:"Customer",   source:"Form",         hs:["sanuk usa"] },
+];
+
+const MANUAL = [
+  { brand:"Reistor",                   type:"Prospect",   source:"Manual Email", hs:["reistor"] },
+  { brand:"Purebaby",                  type:"Customer",   source:"Manual Email", hs:["purebaby pty ltd","purebaby"] },
+  { brand:"petalandpup.com",           type:"Customer",   source:"Manual Email", hs:["aka brands - petal and pup pty ltd","petalandpup"] },
+  { brand:"Noviland",                  type:"Prospect",   source:"Manual Email", hs:["noviland","noviland.com"] },
+  { brand:"Universal Standard",        type:"Customer",   source:"Manual Email", hs:["universal standard inc.","universal standard"], note:"⚠ Also in Customer.io" },
+  { brand:"Toki Kids",                 type:"Prospect",   source:"Manual Email", hs:["toki kids"] },
+  { brand:"Vitality",                  type:"Customer",   source:"Manual Email", hs:["vitality"] },
+  { brand:"mightly",                   type:"Prospect",   source:"Manual Email", hs:["mightly.com","mightly"] },
+  { brand:"Kiyonna Clothing",          type:"Customer",   source:"Manual Email", hs:["kiyonna clothing inc.","kiyonna clothing"] },
+  { brand:"Love, Indus",               type:"Prospect",   source:"Manual Email", hs:["love, indus"] },
+  { brand:"perrywhitedesign.com",      type:"Prospect",   source:"Manual Email", hs:["perry white design"] },
+  { brand:"thejandkgroup.com",         type:"Prospect",   source:"Manual Email", hs:["the j&k holding group"] },
+  { brand:"homecityinc",               type:"Prospect",   source:"Manual Email", hs:["home city"] },
+  { brand:"cbyconsulting",             type:"Agency",     source:"Manual Email", hs:["cby consulting"] },
+  { brand:"miomarino",                 type:"Prospect",   source:"Manual Email", hs:["mio marino"] },
+  { brand:"motherhood maternity",      type:"Prospect",   source:"Manual Email", hs:["motherhood maternity (topson downs)","motherhood maternity"] },
+  { brand:"kendiamani.com",            type:"Prospect",   source:"Manual Email", hs:["http://kendiamani.com","kendiamani.com"] },
+  { brand:"uniquevintage",             type:"Prospect",   source:"Manual Email", hs:["unique vintage, inc.","unique vintage"] },
+  { brand:"Tiny Blessings",            type:"Prospect",   source:"Manual Email", hs:["tiny blessings"] },
+  { brand:"Nick Stenson Beauty",       type:"Prospect",   source:"Manual Email", hs:["nick stenson beauty"] },
+  { brand:"SUNVENO USA INC",           type:"Prospect",   source:"Manual Email", hs:["sunveno usa inc"] },
+  { brand:"Affordable Luxury Group",   type:"Customer",   source:"Manual Email", hs:["affordable luxury group, inc"] },
+  { brand:"Overland Travel",           type:"Prospect",   source:"Manual Email", hs:["overland travel"] },
+  { brand:"HLC.me",                    type:"Prospect",   source:"Manual Email", hs:["hlc.me"] },
+  { brand:"Abiie LLC",                 type:"Customer",   source:"Manual Email", hs:["abiie llc"] },
+  { brand:"Dr. Lara Devgan Skincare",  type:"Prospect",   source:"Manual Email", hs:["dr. lara devgan skincare"] },
+  { brand:"Cowsar",                    type:"Prospect",   source:"Manual Email", hs:["cowsar"] },
+  { brand:"Gymax",                     type:"Prospect",   source:"Manual Email", hs:["gymax"] },
+  { brand:"Valetseller",               type:"Prospect",   source:"Manual Email", hs:["valetseller","valetseller.com"] },
+  { brand:"iamimber",                  type:"Prospect",   source:"Manual Email", hs:["iamimber"] },
+  { brand:"Feltman Brothers",          type:"Customer",   source:"Manual Email", hs:["feltman brothers"] },
+  { brand:"uwilawarrior.com",          type:"Prospect",   source:"Manual Email", hs:["uwilawarrior.com"] },
+  { brand:"Machine Gum LLC",           type:"Customer",   source:"Manual Email", hs:["machine gum llc"] },
+  { brand:"Ettitude",                  type:"Customer",   source:"Manual Email", hs:["ettitude"] },
+  { brand:"Chanteurdesigns",           type:"Prospect",   source:"Manual Email", hs:["chanteurdesigns"] },
+  { brand:"soldthrough",               type:"Prospect",   source:"Manual Email", hs:["soldthrough"] },
+  { brand:"Retail Mingo LLC",          type:"Customer",   source:"Manual Email", hs:["retail mingo llc"] },
+  { brand:"Surya",                     type:"Prospect",   source:"Manual Email", hs:["surya"] },
+  { brand:"Santorelli",                type:"Prospect",   source:"Manual Email", hs:["santorelli"] },
+  { brand:"meadowforall",              type:"LT Customer",source:"Manual Email", hs:["meadowforall"] },
+  { brand:"Hobo The Original",         type:"Customer",   source:"Manual Email", hs:["hobo the original"] },
+  { brand:"Adorama",                   type:"Prospect",   source:"Manual Email", hs:["adorama"] },
+];
+
+const CIO_NAMES = [
+  "ABG - Fredricks of Hollywood","aghair.com","Airwair International Limited",
+  "Algenist LLC","AM Retail Group, Inc.","American Eagle US","Anatomie",
+  "Angel Dear Inc.","AXNY Group (American Exchange)","Barefoot Dreams",
+  "Basic Research, LLC","Beach House Group Sales LLC","Beautopia Hair & Beauty Pty Ltd",
+  "Beekman 1802 Inc","Bella Luna Toys","Blind Barber","bn3th.com",
+  "Bogg Bag, Inc.","Boy Smells, Inc.","BRADSHAW TAYLOR LTD.",
+  "Brahmin Leather Works, LLC","Brandinc Jewellery","Brondell Inc.",
+  "Centric Brands","Chantecaille","Chaser","Chilewich | Sultan LLC.",
+  "Cobra Puma Golf","Coolibar, Inc.","Cotopaxi","Curio Brands",
+  "Dagne Dover","Dan Post Boot Company","Democracy Clothing",
+  "DG Premium Brands LLC","DUALIT LTD","Duke Cannon Supply Company LLC",
+  "Dylan's CandyBar, LLC","Eagle Creek","Eric Javits Inc.","Erno Laszlo",
+  "Escalade Sports","Esker Beauty LLC","Eyebobs","Feetures Running",
+  "FlexiSpot","Florence Beauty, LLC","Footwear Unlimited Inc",
+  "Fox Head, Inc. (Bell Sports)","Glanbia Performance Nutrition (Optimum Nutrition)",
+  "Goodlife Clothing","Grande Cosmetics, LLC","Greyson Clothiers, LLC",
+  "Guru Denim, LLC","Hammitt","Hanky Panky","HARMAN International",
+  "Hasbro Inc","Hatley Little Blue House Inc.","Helen of Troy",
+  "Henkel Corporation","Hybrid Apparel / Junk Food Clothing",
+  "Ideal Living Management LLC","IGK LLC","Integra Beauty",
+  "J. Barbour and Sons","J&D Brush Company LLC","Jenni Kayne, LLC",
+  "JLUXLABEL INC","Jonathan Adler","Juice Beauty","Karen Kane",
+  "Karis & Drake LLC","Kate Somerville","Katin","KEEN, Inc.",
+  "Kenny Flowers, LLC","Hourglass Cosmetics","Kiss Nail Products Inc",
+  "Klean Kanteen","L*Space","La Jolla Group","Le Creuset Canada",
+  "Legion Athletics, Inc","Lifetime Brands","Lime Digital / Ahava",
+  "Living Proof","Lola and the Boys","Lysse Partners, LLC",
+  "MacKenzie-Childs","Magnetic Me","Magnolia","Maison Louis Marie LLC",
+  "Mario Badescu","Mignonne Gavigan, LLC","Miracle Ventures, Inc.",
+  "Monica Rich Kosann","Movado","Murad","MZ Wallace Inc.",
+  "Natori","NEST New York","Nestle - Boost","Nic & Zoe Company",
+  "O2C Brands","PAIGE","Paw.com / Paw Brands Inc","pepsico.com",
+  "Perry Ellis","PFL LIMITED","PJ Salvage","Portier",
+  "Portmeirion Group UK Limited","Pranarom International",
+  "provenskincare.com","Pura Scents Inc","Quiksilver",
+  "RefrigiWear Inc","Revlon Consumer Products LLC","Reyn Spooner",
+  "Robert Graham","RugsUSA LLC","RV Skincare LLC","Saalt LLC",
+  "Savannah Bee","sexyhair.com","Sigma Beauty","Skullcandy Inc.",
+  "Société CEVA","SodaStream International Ltd.","Solo Brands (Chubbies)",
+  "Solo Brands - Solo Stove LLC","Spanx, LLC","Steven Madden, Ltd.",
+  "Stoney Clover Lane","Stührling Original","StriVectin Operating Company, Inc.",
+  "Summit Golf Brands","SWIM USA","Tarte Cosmetics","Tata Harper Skincare",
+  "TekBrands LLC","Tervis","The Laundress","The Lovery Corp",
+  "The Sak Brand Group","Thermos L.L.C.","Thirty Three Threads",
+  "This Works Products Limited","Thompson Tee Inc","Timex.com, Inc",
+  "Toms Shoes, LLC","Trish McEvoy","Udisense Inc dba Nanit",
+  "US Luggage","Varley Clothing Inc.","Verb Products Inc.",
+  "Veronica Beard","VF Singapore Overseas Services Pte. Ltd.",
+  "Victoria Beckham","vietri.com","Virtue Labs, LLC",
+  "Voyetra Turtle Beach, Inc.","Wear Pact, LLC","Welspun UK LTD",
+  "WHP Plus, LLC","Workwear Outfitters, LLC"
+];
+
+const CIO = CIO_NAMES.map(n => ({
+  brand: n, type: "Customer", source: "Customer.io", hs: [n.toLowerCase()]
+}));
+
+const ALL_DATA = [...FORM, ...MANUAL, ...CIO];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+function norm(s) { return (s || '').toLowerCase().trim(); }
+let activeFilters = { source: new Set(['all']), interest: 'all', replied: 'all', hasopp: 'all', type: 'all' };
+let enrichedData = ALL_DATA.map(d => ({ ...d, interest: null, replied: null, oppStage: null }));
+let grid = null;
+
+function updateStats(data) {
+  document.getElementById('s-total').textContent = data.length;
+  document.getElementById('s-interested').textContent = data.filter(d => d.interest === 'yes').length;
+  document.getElementById('s-replied').textContent = data.filter(d => d.replied === 'yes').length;
+  document.getElementById('s-hasopp').textContent = data.filter(d => d.oppStage).length;
+  const wonBrands = data.filter(d => d.oppStage === 'Won - Sale');
+  document.getElementById('s-won').textContent = wonBrands.length;
+  const wonACV = wonBrands.reduce((sum, d) => sum + (d.acv || 0), 0);
+  document.getElementById('s-wonacv').textContent = wonACV ? '$' + wonACV.toLocaleString() : '—';
+  document.getElementById('s-customers').textContent = data.filter(d => ['Customer','LT Customer'].includes(d.type)).length;
+}
+
+function filterData() {
+  const search = norm(document.getElementById('search').value);
+  return enrichedData.filter(d => {
+    if (search && !norm(d.brand).includes(search)) return false;
+    if (!activeFilters.source.has('all') && !activeFilters.source.has(d.source)) return false;
+    if (activeFilters.interest !== 'all' && d.interest !== activeFilters.interest) return false;
+    if (activeFilters.replied !== 'all' && d.replied !== activeFilters.replied) return false;
+    if (activeFilters.hasopp === 'yes' && !d.oppStage) return false;
+    if (activeFilters.hasopp === 'no' && d.oppStage) return false;
+    if (activeFilters.type === 'customer' && !['Customer','LT Customer'].includes(d.type)) return false;
+    if (activeFilters.type === 'lead' && !['Lead','Prospect','Agency'].includes(d.type)) return false;
+    return true;
+  });
+}
+
+function html(s) { return gridjs.html(s); }
+
+function typeBadge(t) {
+  const cls = { Customer:'b-customer', Lead:'b-lead', Prospect:'b-prospect', Agency:'b-agency', 'LT Customer':'b-ltcustomer' }[t] || 'b-customer';
+  return html(`<span class="badge ${cls}">${t}</span>`);
+}
+function sourceBadge(s) {
+  const cls = { Form:'b-form', 'Manual Email':'b-manual', 'Customer.io':'b-cio' }[s] || '';
+  return html(`<span class="badge ${cls}">${s}</span>`);
+}
+function boolCell(v) {
+  if (v === 'yes') return html('<span class="yes">✓ Yes</span>');
+  if (v === 'no')  return html('<span class="no">✗ No</span>');
+  return html('<span class="dash">—</span>');
+}
+function stageCell(v) {
+  if (!v) return html('<span class="stage-none">—</span>');
+  const cls = {
+    'Potential': 'stage-potential',
+    'Discovery': 'stage-discovery',
+    'Evaluation': 'stage-evaluation',
+    'Propose': 'stage-propose',
+    'Contracting': 'stage-contracting',
+    'Won - Sale': 'stage-won',
+    'Lost': 'stage-lost',
+  }[v] || 'stage-potential';
+  return html(`<span class="stage-badge ${cls}">${v}</span>`);
+}
+function brandCell(d) {
+  const note = d.note ? `<span class="dup-note">${d.note}</span>` : '';
+  return html(`<span style="font-weight:500">${d.brand}</span>${note}`);
+}
+
+function ownerCell(v) {
+  if (!v) return html('<span class="dash">—</span>');
+  return html(`<span style="font-size:12px;color:#374151">${v}</span>`);
+}
+
+function renderGrid(data) {
+  const wrap = document.getElementById('table-wrap');
+  const rows = data.map(d => [d, d.type, d.source, d.interest, d.replied, d.oppStage, d.owner]);
+
+  if (grid) {
+    grid.updateConfig({ data: rows }).forceRender();
+  } else {
+    wrap.innerHTML = '';
+    grid = new gridjs.Grid({
+      columns: [
+        { name: 'Account Name (SF)', width: '200px', formatter: (_, row) => brandCell(row.cells[0].data) },
+        { name: 'Type',             width: '110px', formatter: (c) => typeBadge(c) },
+        { name: 'Campaign Type',    width: '120px', formatter: (c) => sourceBadge(c) },
+        { name: 'Interested? (SF)', width: '130px', formatter: (c) => boolCell(c) },
+        { name: 'Replied?',         width: '100px', formatter: (c) => boolCell(c) },
+        { name: 'Opp Stage',        width: '120px', formatter: (c) => stageCell(c) },
+        { name: 'Owner',            width: '140px', formatter: (c) => ownerCell(c) },
+      ],
+      data: rows,
+      sort: true,
+      pagination: { limit: 50, summary: true },
+    }).render(wrap);
+  }
+
+  updateStats(data);
+}
+
+function applyFilters() {
+  renderGrid(filterData());
+}
+
+// ── FILTER BUTTONS ────────────────────────────────────────────────────────────
+document.querySelectorAll('.pill[data-f]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.f;
+    const v = btn.dataset.v;
+
+    if (f === 'source') {
+      if (v === 'all') {
+        activeFilters.source = new Set(['all']);
+      } else {
+        activeFilters.source.delete('all');
+        if (activeFilters.source.has(v)) activeFilters.source.delete(v);
+        else activeFilters.source.add(v);
+        if (activeFilters.source.size === 0) activeFilters.source.add('all');
+      }
+      // sync all source pill visuals to match the set
+      document.querySelectorAll('.pill[data-f="source"]').forEach(b => {
+        const inSet = activeFilters.source.has(b.dataset.v);
+        const isAll = b.dataset.v === 'all' && activeFilters.source.has('all');
+        b.classList.toggle('active', inSet || isAll);
+      });
+    } else {
+      document.querySelectorAll(`.pill[data-f="${f}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilters[f] = v;
+    }
+    applyFilters();
+  });
+});
+
+// ── PRE-MATCHED SALESFORCE DATA ───────────────────────────────────────────────
+// Generated 2026-06-15 via Claude Code + Salesforce MCP fuzzy matching.
+// To refresh: re-run the sf_brand_map.json generation script and paste updated data here.
+const SF_MAP_DATE = '2026-06-17';
+const STATIC_SF_DATA = {
+  "shortyLOVE LLC": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Frank and Adam Apparel": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Sapphire Group": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Naturalprettyhair.com": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Daluchi.shop": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Edikted LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "DSPMOTOR INC": {"sfAccountId":null,"sfAccountName":"DSPMOTOR INC","interested":true,"oppStage":"Contracting","replied":false,"owner":"Chloe Bullen"},
+  "Fable England": {"sfAccountId":null,"sfAccountName":"Fable England (Supamax Limited)","interested":true,"oppStage":"Contracting","replied":false,"owner":"Sergio Ribeiro"},
+  "Alterreny.com": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "hearshearingandhearables": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "effortlessbedding": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Adducate Inc": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Supersmile": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "prosperacorp": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Viscata": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Sanuk Usa": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Reistor": {"sfAccountId":null,"sfAccountName":"Reistor","interested":false,"oppStage":"Discovery","replied":false,"owner":"Sasha Berger"},
+  "Purebaby": {"sfAccountId":null,"sfAccountName":"Purebaby pty ltd","interested":true,"oppStage":"Discovery","replied":false,"owner":"Peta Cannon"},
+  "petalandpup.com": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Noviland": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Universal Standard": {"sfAccountId":null,"sfAccountName":"Universal Standard Inc.","interested":true,"oppStage":"Potential","replied":false,"owner":"Yotpo Customer Success"},
+  "Toki Kids": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Vitality": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "mightly": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Kiyonna Clothing": {"sfAccountId":null,"sfAccountName":"Kiyonna Clothing Inc.","interested":true,"oppStage":"Potential","replied":false,"owner":"Carol Berroa"},
+  "Love, Indus": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "perrywhitedesign.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "thejandkgroup.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "homecityinc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "cbyconsulting": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "miomarino": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "motherhood maternity": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "kendiamani.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "uniquevintage": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Tiny Blessings": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Nick Stenson Beauty": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "SUNVENO USA INC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Affordable Luxury Group": {"sfAccountId":null,"sfAccountName":"Affordable Luxury Group, Inc","interested":true,"oppStage":"Won - Sale","replied":false,"owner":"Kelsey Hierlihy","acv":2500},
+  "Stührling Original": {"sfAccountId":null,"sfAccountName":"Stührling Original","interested":false,"oppStage":"Won - Sale","replied":false,"owner":"Johnny Fulford","acv":2500},
+  "Overland Travel": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "HLC.me": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Abiie LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Dr. Lara Devgan Skincare": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Cowsar": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Gymax": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Valetseller": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "iamimber": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Feltman Brothers": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "uwilawarrior.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Machine Gum LLC": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Ettitude": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Chanteurdesigns": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "soldthrough": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Retail Mingo LLC": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Surya": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Santorelli": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "meadowforall": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Hobo The Original": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Adorama": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "ABG - Fredricks of Hollywood": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "aghair.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Airwair International Limited": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Algenist LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "AM Retail Group, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "American Eagle US": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Anatomie": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Angel Dear Inc.": {"sfAccountId":null,"sfAccountName":"Angel Dear Inc.","interested":true,"oppStage":"Potential","replied":false,"owner":"Maria Gonzalez"},
+  "AXNY Group (American Exchange)": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Barefoot Dreams": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Basic Research, LLC": {"sfAccountId":null,"sfAccountName":"Basic Research, LLC","interested":true,"oppStage":"Potential","replied":false,"owner":"Deuel Feliz"},
+  "Beach House Group Sales LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Beautopia Hair & Beauty Pty Ltd": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Beekman 1802 Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Bella Luna Toys": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Blind Barber": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "bn3th.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Bogg Bag, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Boy Smells, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "BRADSHAW TAYLOR LTD.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Brahmin Leather Works, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Brandinc Jewellery": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Brondell Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Centric Brands": {"sfAccountId":null,"sfAccountName":"Centric Brands","interested":true,"oppStage":"Propose","replied":true,"owner":"Stephanie D'Amico"},
+  "Chantecaille": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Chaser": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Chilewich | Sultan LLC.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Cobra Puma Golf": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Coolibar, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Cotopaxi": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Curio Brands": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Dagne Dover": {"sfAccountId":null,"sfAccountName":"Dagne Dover (18th and Walnut LLC)","interested":true,"oppStage":"Potential","replied":false,"owner":"Florence Badejo"},
+  "Dan Post Boot Company": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Democracy Clothing": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "DG Premium Brands LLC": {"sfAccountId":null,"sfAccountName":"DG Premium Brands LLC","interested":true,"oppStage":"Potential","replied":true,"owner":"Stephanie D'Amico"},
+  "DUALIT LTD": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Duke Cannon Supply Company LLC": {"sfAccountId":null,"sfAccountName":"Duke Cannon Supply Company LLC","interested":true,"oppStage":"Discovery","replied":true,"owner":"Zack Crenna"},
+  "Dylan's CandyBar, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Eagle Creek": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Eric Javits Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Erno Laszlo": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Escalade Sports": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Esker Beauty LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Eyebobs": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Feetures Running": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "FlexiSpot": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Florence Beauty, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Footwear Unlimited Inc": {"sfAccountId":null,"sfAccountName":"Footwear Unlimited Inc","interested":true,"oppStage":"Potential","replied":true,"owner":"Stephanie D'Amico"},
+  "Fox Head, Inc. (Bell Sports)": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Glanbia Performance Nutrition (Optimum Nutrition)": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Goodlife Clothing": {"sfAccountId":null,"sfAccountName":"Goodlife Clothing","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
+  "Grande Cosmetics, LLC": {"sfAccountId":null,"sfAccountName":"Grande Cosmetics, LLC","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
+  "Greyson Clothiers, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Guru Denim, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Hammitt": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Hanky Panky": {"sfAccountId":null,"sfAccountName":"Hanky Panky","interested":true,"oppStage":"Potential","replied":false,"owner":"Maria Gonzalez"},
+  "HARMAN International": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Hasbro Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Hatley Little Blue House Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Helen of Troy": {"sfAccountId":null,"sfAccountName":"Helen of Troy","interested":true,"oppStage":"Potential","replied":true,"owner":"Florence Badejo"},
+  "Henkel Corporation": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Hybrid Apparel / Junk Food Clothing": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Ideal Living Management LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "IGK LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Integra Beauty": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "J. Barbour and Sons": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "J&D Brush Company LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Jenni Kayne, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "JLUXLABEL INC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Jonathan Adler": {"sfAccountId":null,"sfAccountName":"Jonathan Adler","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "Juice Beauty": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Karen Kane": {"sfAccountId":null,"sfAccountName":"Karen Kane","interested":true,"oppStage":"Propose","replied":true,"owner":"Stephanie D'Amico"},
+  "Karis & Drake LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Kate Somerville": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Katin": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "KEEN, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Kenny Flowers, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Hourglass Cosmetics": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Kiss Nail Products Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Klean Kanteen": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "L*Space": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "La Jolla Group": {"sfAccountId":null,"sfAccountName":"La Jolla Group","interested":true,"oppStage":"Potential","replied":false,"owner":"Stephanie D'Amico"},
+  "Le Creuset Canada": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Legion Athletics, Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Lifetime Brands": {"sfAccountId":null,"sfAccountName":"Lifetime Brands","interested":false,"oppStage":"Discovery","replied":true,"owner":"Zack Crenna"},
+  "Lime Digital / Ahava": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Living Proof": {"sfAccountId":null,"sfAccountName":"Living Proof","interested":true,"oppStage":"Potential","replied":true,"owner":"Florence Badejo"},
+  "Lola and the Boys": {"sfAccountId":null,"sfAccountName":"Lola and the Boys","interested":true,"oppStage":"Potential","replied":false,"owner":"Maria Gonzalez"},
+  "Lysse Partners, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "MacKenzie-Childs": {"sfAccountId":null,"sfAccountName":"MacKenzie-Childs","interested":false,"oppStage":"Discovery","replied":true,"owner":"Zack Crenna"},
+  "Magnetic Me": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Magnolia": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Maison Louis Marie LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Mario Badescu": {"sfAccountId":null,"sfAccountName":"Mario Badescu","interested":true,"oppStage":"Potential","replied":true,"owner":"Andrea Luciano"},
+  "Mignonne Gavigan, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Miracle Ventures, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Monica Rich Kosann": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Movado": {"sfAccountId":null,"sfAccountName":"Movado","interested":true,"oppStage":"Discovery","replied":false,"owner":"Zack Crenna"},
+  "Murad": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "MZ Wallace Inc.": {"sfAccountId":null,"sfAccountName":"MZ Wallace Inc.","interested":true,"oppStage":"Won - Sale","replied":false,"owner":"Kevin Payoyo","acv":4500},
+  "Natori": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "NEST New York": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Nestle - Boost": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Nic & Zoe Company": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "O2C Brands": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "PAIGE": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Paw.com / Paw Brands Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "pepsico.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Perry Ellis": {"sfAccountId":null,"sfAccountName":"Perry Ellis","interested":true,"oppStage":"Potential","replied":false,"owner":"Florence Badejo"},
+  "PFL LIMITED": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "PJ Salvage": {"sfAccountId":null,"sfAccountName":"PJ Salvage","interested":false,"oppStage":"Propose","replied":true,"owner":"Stephanie D'Amico"},
+  "Portier": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Portmeirion Group UK Limited": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Pranarom International": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "provenskincare.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Pura Scents Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Quiksilver": {"sfAccountId":null,"sfAccountName":"Quiksilver","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "RefrigiWear Inc": {"sfAccountId":null,"sfAccountName":"RefrigiWear Inc","interested":true,"oppStage":"Won - Sale","replied":false,"owner":"Ella Lew","acv":2500},
+  "Revlon Consumer Products LLC": {"sfAccountId":null,"sfAccountName":"Revlon Consumer Products LLC","interested":true,"oppStage":"Propose","replied":true,"owner":"Florence Badejo"},
+  "Reyn Spooner": {"sfAccountId":null,"sfAccountName":"Reyn Spooner","interested":true,"oppStage":"Potential","replied":false,"owner":"Maria Gonzalez"},
+  "Robert Graham": {"sfAccountId":null,"sfAccountName":"Robert Graham","interested":true,"oppStage":"Potential","replied":false,"owner":"Stephanie D'Amico"},
+  "RugsUSA LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "RV Skincare LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Saalt LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Savannah Bee": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "sexyhair.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Sigma Beauty": {"sfAccountId":null,"sfAccountName":"Sigma Beauty","interested":true,"oppStage":"Potential","replied":false,"owner":"Penelope Beato"},
+  "Skullcandy Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Société CEVA": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "SodaStream International Ltd.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Solo Brands (Chubbies)": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Solo Brands - Solo Stove LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Spanx, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Steven Madden, Ltd.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Stoney Clover Lane": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "StriVectin Operating Company, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Summit Golf Brands": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "SWIM USA": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Tarte Cosmetics": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Tata Harper Skincare": {"sfAccountId":null,"sfAccountName":"Tata Harper Skincare","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "TekBrands LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Tervis": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "The Laundress": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "The Lovery Corp": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "The Sak Brand Group": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Thermos L.L.C.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Thirty Three Threads": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "This Works Products Limited": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Thompson Tee Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Timex.com, Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Toms Shoes, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Trish McEvoy": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Udisense Inc dba Nanit": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "US Luggage": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Varley Clothing Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Verb Products Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
+  "Veronica Beard": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "VF Singapore Overseas Services Pte. Ltd.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Victoria Beckham": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "vietri.com": {"sfAccountId":null,"sfAccountName":"vietri.com","interested":true,"oppStage":"Potential","replied":true,"owner":"Enmanuel Azar"},
+  "Virtue Labs, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Voyetra Turtle Beach, Inc.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Wear Pact, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Welspun UK LTD": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "WHP Plus, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+  "Workwear Outfitters, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
+};
+
+// ── LOAD STATIC SF DATA ───────────────────────────────────────────────────────
+function loadStaticSFData() {
+  const statusEl = document.getElementById('sf-status');
+  const lastEl   = document.getElementById('last-updated');
+  const mapDateEl = document.getElementById('map-date');
+
+  if (mapDateEl) mapDateEl.textContent = SF_MAP_DATE;
+
+  enrichedData = ALL_DATA.map(d => {
+    const sf = STATIC_SF_DATA[d.brand] || {};
+    return {
+      ...d,
+      interest: sf.interested ? 'yes' : 'no',
+      replied:  sf.replied    ? 'yes' : 'no',
+      oppStage: sf.oppStage  || null,
+      owner:    sf.owner     || null,
+      acv:      sf.acv       || null,
+    };
+  });
+
+  applyFilters();
+  statusEl.textContent = '✅ Data from Salesforce (pre-matched ' + SF_MAP_DATE + ')';
+  lastEl.textContent = 'SF data last synced: ' + SF_MAP_DATE + ' · Interest flag, Gong replies & opp stage via SOQL · Re-run Claude to refresh';
+}
+
+loadStaticSFData();
+</script>
+</body>
+</html>
