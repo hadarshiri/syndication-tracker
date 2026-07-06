@@ -261,7 +261,12 @@ const CIO_NAMES = [
   "Veronica Beard","VF Singapore Overseas Services Pte. Ltd.",
   "Victoria Beckham","vietri.com","Virtue Labs, LLC",
   "Voyetra Turtle Beach, Inc.","Wear Pact, LLC","Welspun UK LTD",
-  "WHP Plus, LLC","Workwear Outfitters, LLC","Makari"
+  "WHP Plus, LLC","Workwear Outfitters, LLC","Makari",
+  "Ergo Baby","King Arthur Baking","C.O. Bigelow Apothecaries","IFGFit Inc dba Forme",
+  "Risetex Inc","Bebe (part of Cart)","Middle East Bakery, Inc. d/b/a Joseph's Bakery",
+  "aden + anais","LoveShackFancy, LLC","Oars + Alps","Growve","Dermelect",
+  "Drew Brady Co Inc (DBA Heat Holders)","Sound Around USA","Billabong",
+  "PENSHURST TRADING INC DBA JULISKA INC"
 ];
 
 const CIO = CIO_NAMES.map(n => ({
@@ -417,7 +422,7 @@ document.querySelectorAll('.pill[data-f]').forEach(btn => {
 // ── PRE-MATCHED SALESFORCE DATA ───────────────────────────────────────────────
 // Generated 2026-06-15 via Claude Code + Salesforce MCP fuzzy matching.
 // To refresh: re-run the sf_brand_map.json generation script and paste updated data here.
-const SF_MAP_DATE = '2026-06-17';
+const SF_MAP_DATE = '2026-07-06';
 const STATIC_SF_DATA = {
   "shortyLOVE LLC": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
   "Frank and Adam Apparel": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
@@ -431,7 +436,7 @@ const STATIC_SF_DATA = {
   "hearshearingandhearables": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
   "effortlessbedding": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
   "Adducate Inc": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
-  "Supersmile": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
+  "Supersmile": {"sfAccountId":null,"sfAccountName":"Supersmile","interested":true,"oppStage":"Discovery","replied":false,"owner":"Vicky Daboin"},
   "prosperacorp": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
   "Viscata": {"sfAccountId":null,"sfAccountName":null,"interested":true,"oppStage":null,"replied":false,"owner":null},
   "Sanuk Usa": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
@@ -528,7 +533,7 @@ const STATIC_SF_DATA = {
   "Footwear Unlimited Inc": {"sfAccountId":null,"sfAccountName":"Footwear Unlimited Inc","interested":true,"oppStage":"Potential","replied":true,"owner":"Stephanie D'Amico"},
   "Fox Head, Inc. (Bell Sports)": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Glanbia Performance Nutrition (Optimum Nutrition)": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
-  "Goodlife Clothing": {"sfAccountId":null,"sfAccountName":"Goodlife Clothing","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
+  "Goodlife Clothing": {"sfAccountId":null,"sfAccountName":"Goodlife Clothing","interested":false,"oppStage":"Lost","replied":true,"owner":"Stephanie D'Amico"},
   "Grande Cosmetics, LLC": {"sfAccountId":null,"sfAccountName":"Grande Cosmetics, LLC","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
   "Greyson Clothiers, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Guru Denim, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
@@ -547,9 +552,9 @@ const STATIC_SF_DATA = {
   "J&D Brush Company LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
   "Jenni Kayne, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "JLUXLABEL INC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
-  "Jonathan Adler": {"sfAccountId":null,"sfAccountName":"Jonathan Adler","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "Jonathan Adler": {"sfAccountId":null,"sfAccountName":"Jonathan Adler","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
   "Juice Beauty": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
-  "Karen Kane": {"sfAccountId":null,"sfAccountName":"Karen Kane","interested":true,"oppStage":"Propose","replied":true,"owner":"Stephanie D'Amico"},
+  "Karen Kane": {"sfAccountId":null,"sfAccountName":"Karen Kane","interested":true,"oppStage":"Contracting","replied":true,"owner":"Stephanie D'Amico"},
   "Karis & Drake LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Kate Somerville": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
   "Katin": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
@@ -559,7 +564,7 @@ const STATIC_SF_DATA = {
   "Kiss Nail Products Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
   "Klean Kanteen": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "L*Space": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
-  "La Jolla Group": {"sfAccountId":null,"sfAccountName":"La Jolla Group","interested":true,"oppStage":"Potential","replied":false,"owner":"Stephanie D'Amico"},
+  "La Jolla Group": {"sfAccountId":null,"sfAccountName":"La Jolla Group","interested":true,"oppStage":"Potential","replied":false,"owner":"Timothy Chipchase"},
   "Le Creuset Canada": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Legion Athletics, Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Lifetime Brands": {"sfAccountId":null,"sfAccountName":"Lifetime Brands","interested":false,"oppStage":"Discovery","replied":true,"owner":"Zack Crenna"},
@@ -594,7 +599,7 @@ const STATIC_SF_DATA = {
   "Pranarom International": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "provenskincare.com": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Pura Scents Inc": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
-  "Quiksilver": {"sfAccountId":null,"sfAccountName":"Quiksilver","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "Quiksilver": {"sfAccountId":null,"sfAccountName":"Quiksilver","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
   "RefrigiWear Inc": {"sfAccountId":null,"sfAccountName":"RefrigiWear Inc","interested":true,"oppStage":"Won - Sale","replied":false,"owner":"Ella Lew","acv":2500},
   "Revlon Consumer Products LLC": {"sfAccountId":null,"sfAccountName":"Revlon Consumer Products LLC","interested":true,"oppStage":"Propose","replied":true,"owner":"Florence Badejo"},
   "Reyn Spooner": {"sfAccountId":null,"sfAccountName":"Reyn Spooner","interested":true,"oppStage":"Potential","replied":false,"owner":"Maria Gonzalez"},
@@ -610,6 +615,22 @@ const STATIC_SF_DATA = {
   "SodaStream International Ltd.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
   "Solo Brands (Chubbies)": {"sfAccountId":null,"sfAccountName":"Solo Brands (Chubbies)","interested":false,"oppStage":"Lost","replied":true,"owner":"Stephanie D'Amico"},
   "Makari": {"sfAccountId":null,"sfAccountName":"Victoria A LLC","interested":false,"oppStage":"Lost","replied":true,"owner":"Jeremy Hodgson"},
+  "Ergo Baby": {"sfAccountId":null,"sfAccountName":"Ergo Baby","interested":true,"oppStage":"Potential","replied":false,"owner":"Florence Badejo"},
+  "King Arthur Baking": {"sfAccountId":null,"sfAccountName":"King Arthur Baking","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "C.O. Bigelow Apothecaries": {"sfAccountId":null,"sfAccountName":"C.O. Bigelow Apothecaries","interested":true,"oppStage":"Potential","replied":false,"owner":"Engels Mejia"},
+  "IFGFit Inc dba Forme": {"sfAccountId":null,"sfAccountName":"IFGFit Inc dba Forme","interested":true,"oppStage":"Potential","replied":false,"owner":"Cesar Pagan"},
+  "Risetex Inc": {"sfAccountId":null,"sfAccountName":"Risetex Inc","interested":true,"oppStage":"Potential","replied":false,"owner":"Nicholas Georgiou"},
+  "Bebe (part of Cart)": {"sfAccountId":null,"sfAccountName":"Bebe (part of Cart)","interested":false,"oppStage":"Lost","replied":true,"owner":"Stephanie D'Amico"},
+  "Middle East Bakery, Inc. d/b/a Joseph's Bakery": {"sfAccountId":null,"sfAccountName":"Middle East Bakery, Inc. d/b/a Joseph's Bakery","interested":false,"oppStage":"Lost","replied":true,"owner":"Vicky Daboin"},
+  "aden + anais": {"sfAccountId":null,"sfAccountName":"aden + anais","interested":true,"oppStage":"Potential","replied":false,"owner":"Claudio Vargas"},
+  "LoveShackFancy, LLC": {"sfAccountId":null,"sfAccountName":"LoveShackFancy, LLC","interested":true,"oppStage":"Potential","replied":false,"owner":"Claudio Vargas"},
+  "Oars + Alps": {"sfAccountId":null,"sfAccountName":"Oars + Alps","interested":true,"oppStage":"Potential","replied":false,"owner":"Carol Berroa"},
+  "Growve": {"sfAccountId":null,"sfAccountName":"Growve","interested":true,"oppStage":"Potential","replied":false,"owner":"Yamil lee"},
+  "Dermelect": {"sfAccountId":null,"sfAccountName":"Dermelect","interested":true,"oppStage":"Potential","replied":false,"owner":"Penelope Beato"},
+  "Drew Brady Co Inc (DBA Heat Holders)": {"sfAccountId":null,"sfAccountName":"Drew Brady Co Inc (DBA Heat Holders)","interested":true,"oppStage":"Potential","replied":false,"owner":"Maria Gonzalez"},
+  "Sound Around USA": {"sfAccountId":null,"sfAccountName":"Sound Around USA","interested":false,"oppStage":"Lost","replied":true,"owner":"Vicky Daboin"},
+  "Billabong": {"sfAccountId":null,"sfAccountName":"Billabong","interested":true,"oppStage":"Evaluation","replied":true,"owner":"Stephanie D'Amico"},
+  "PENSHURST TRADING INC DBA JULISKA INC": {"sfAccountId":null,"sfAccountName":"PENSHURST TRADING INC DBA JULISKA INC","interested":false,"oppStage":"Lost","replied":true,"owner":"Vicky Daboin"},
   "Solo Brands - Solo Stove LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Spanx, LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Steven Madden, Ltd.": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
@@ -618,7 +639,7 @@ const STATIC_SF_DATA = {
   "Summit Golf Brands": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "SWIM USA": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
   "Tarte Cosmetics": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
-  "Tata Harper Skincare": {"sfAccountId":null,"sfAccountName":"Tata Harper Skincare","interested":true,"oppStage":"Discovery","replied":true,"owner":"Stephanie D'Amico"},
+  "Tata Harper Skincare": {"sfAccountId":null,"sfAccountName":"Tata Harper Skincare","interested":false,"oppStage":"Lost","replied":true,"owner":"Stephanie D'Amico"},
   "TekBrands LLC": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
   "Tervis": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":true,"owner":null},
   "The Laundress": {"sfAccountId":null,"sfAccountName":null,"interested":false,"oppStage":null,"replied":false,"owner":null},
